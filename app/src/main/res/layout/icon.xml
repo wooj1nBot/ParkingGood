@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rv"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/v"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_date"
+        android:layout_centerHorizontal="true">
+
+        <RelativeLayout
+            android:id="@+id/ic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:tint="@color/main"
+                app:srcCompat="@drawable/location_on_48px" />
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="10dp"
+                android:layout_height="20dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:background="@color/main" />
+
+            <ImageView
+                android:id="@+id/iv_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="false"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                app:srcCompat="@drawable/minor_crash_48px"
+                app:tint="#ffffff" />
+        </RelativeLayout>
+
+        <com.adventure.parkinggood.OutlineTextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ic"
+            android:layout_centerHorizontal="true"
+            android:text="내 차"
+            android:textColor="#222222"
+            android:textStyle="bold"
+            app:textStroke="true"
+            app:textStrokeColor="@color/white"
+            app:textStrokeWidth="4.0" />
+
+    </RelativeLayout>
+
+    <com.adventure.parkinggood.OutlineTextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="false"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/stroke_activie"
+        android:paddingStart="7dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="7dp"
+        android:paddingBottom="5dp"
+        android:text="Arrive at 3:30 AM"
+        android:textColor="#222222"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:textStroke="true"
+        app:textStrokeColor="@color/white"
+        app:textStrokeWidth="4.0" />
+</RelativeLayout>

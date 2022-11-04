@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "841292799887",
+    "project_id": "adventuredesign-becc1",
+    "storage_bucket": "adventuredesign-becc1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841292799887:android:87005f7f88dd8930beb5fa",
+        "android_client_info": {
+          "package_name": "com.adventure.parkinggood"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "841292799887-hc69mtnrdlrqvfv67au6jep4b47l3j2t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adventure.parkinggood",
+            "certificate_hash": "4af5e59a4e20aab51d099471642f934c8b29c9bf"
+          }
+        },
+        {
+          "client_id": "841292799887-hi3bq44cira16qlc29nqhtrk9akte2n5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMGORhK6aa-c-nygd6hFtX3fGbFrMI8Ys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "841292799887-hi3bq44cira16qlc29nqhtrk9akte2n5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
