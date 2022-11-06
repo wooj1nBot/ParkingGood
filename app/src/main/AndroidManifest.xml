@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
 
     <application
         android:allowBackup="true"
@@ -13,14 +16,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AdventureDesign">
+        <receiver
+            android:name=".ParkingReceiver"
+            android:enabled="true"
+            android:exported="true">
+        </receiver>
+
+        <service
+            android:name=".ParkingService"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity
-            android:name="com.adventure.parkinggood.SettingActivity"
+            android:name=".SettingActivity"
             android:exported="false" />
         <activity
-            android:name="com.adventure.parkinggood.MapActivity"
-            android:exported="false" />
+            android:name=".MapActivity"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="FCM_PARKING_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
-            android:name="com.adventure.parkinggood.MainActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,11 +48,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.adventure.parkinggood.SignUpActivity"
+            android:name=".SignUpActivity"
             android:exported="false" />
         <activity
-            android:name="com.adventure.parkinggood.LoginActivity"
+            android:name=".LoginActivity"
             android:exported="false" />
+
+        <service
+            android:name=".MyFCMService"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

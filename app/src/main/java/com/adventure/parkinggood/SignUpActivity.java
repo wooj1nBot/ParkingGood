@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -62,6 +63,7 @@ public class SignUpActivity extends AppCompatActivity {
     TextInputEditText name_edit;
     TextInputEditText email_edit;
     TextInputEditText password_edit;
+    TextInputEditText phone_edit;
     CardView join_btn;
     ImageView imageView;
     CheckBox checkBox;
@@ -88,6 +90,7 @@ public class SignUpActivity extends AppCompatActivity {
         email_edit = findViewById(R.id.email_edit);
         password_edit = findViewById(R.id.etPassword);
         name_edit = findViewById(R.id.name_edit);
+        phone_edit = findViewById(R.id.etPhone);
         join_btn = findViewById(R.id.login_btn);
         tv_join = findViewById(R.id.textView8);
 
@@ -156,6 +159,7 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             }
         });
+        phone_edit.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
 
         join_btn.setOnClickListener(new OnSingleClickListener() {
             @Override
@@ -163,16 +167,21 @@ public class SignUpActivity extends AppCompatActivity {
                 String email = email_edit.getText().toString().replaceAll(" ", "");;
                 String password = password_edit.getText().toString().replaceAll(" ", "");
                 String name = name_edit.getText().toString();
+                String phone = phone_edit.getText().toString().replaceAll(" ", "");
                 if (name.length() > 0) {
                     if (!email.contains("@")) {
-                        email_edit.setError("Please enter a valid email address.");
+                        email_edit.setError("올바른 이메일 주소를 적어주세요.");
                     } else {
                         if (password.length() < 6) {
-                            password_edit.setError("Please enter a password of at least 6 digits.");
+                            password_edit.setError("6자리 이상의 비밀번호를 입력해주세요.");
                         } else {
                             com.adventure.parkinggood.User user = new User();
                             user.name = name;
                             user.email = email;
+
+                            if(phone.length() > 0){
+                                user.phone = phone;
+                            }
 
                             if(isver){
                                 doneVerifyEmail();
@@ -182,7 +191,7 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                     }
                 }else {
-                    email_edit.setError("Please enter a name.");
+                    email_edit.setError("이름을 입력해주세요.");
                 }
             }
         });
@@ -276,12 +285,12 @@ public class SignUpActivity extends AppCompatActivity {
                     loadingView.stop();
                     User = mAuth.getCurrentUser();
                     if(User.isEmailVerified()){
-                        Toast.makeText(SignUpActivity.this, "Sign up is complete!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SignUpActivity.this, "회원가입이 완료되었습니다!", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
                     }else {
-                        Toast.makeText(SignUpActivity.this, "Email is not verified.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SignUpActivity.this, "이메일 인증이 완료되지 않았습니다.", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -299,12 +308,13 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(SignUpActivity.this, "A user verification email has been sent.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "인증용 이메일을 전송했습니다.", Toast.LENGTH_LONG).show();
                             isver = true;
                             tv_join.setText("Complete Sign Up");
                             email_edit.setEnabled(false);
                             password_edit.setEnabled(false);
                             name_edit.setEnabled(false);
+                            phone_edit.setEnabled(false);
                             user.uid = User.getUid();
 
                             if(resultUri != null){
@@ -314,7 +324,7 @@ public class SignUpActivity extends AppCompatActivity {
                             }
                         }else {
                             loadingView.stop();
-                            Toast.makeText(SignUpActivity.this, "Email verify failed", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "이메일 인증 실패", Toast.LENGTH_LONG).show();
                         }
                     }});
             }
@@ -322,7 +332,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 loadingView.stop();
-                email_edit.setError("This email is already registered.");
+                email_edit.setError("이미 가입된 이메일 주소입니다.");
             }
         });
     }
@@ -356,13 +366,13 @@ public class SignUpActivity extends AppCompatActivity {
                     }
                 }else {
                     loadingView.stop();
-                    Toast.makeText(SignUpActivity.this, "Failed to save data.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignUpActivity.this, "데이터 저장에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
                 }
             }}).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 loadingView.stop();
-                Toast.makeText(SignUpActivity.this, "Failed to save data.", Toast.LENGTH_LONG).show();
+                Toast.makeText(SignUpActivity.this, "데이터 저장에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -373,7 +383,7 @@ public class SignUpActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<String> task) {
                 if (!task.isSuccessful()) {
                     loadingView.stop();
-                    Toast.makeText(SignUpActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignUpActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 user.token = task.getResult();
@@ -382,9 +392,9 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         loadingView.stop();
                         if (task.isSuccessful()) {
-                            Toast.makeText(SignUpActivity.this, "Please verify your email!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "이메일 인증을 완료해주세요!", Toast.LENGTH_LONG).show();
                         }else {
-                            Toast.makeText(SignUpActivity.this, "Failed to save data. Please try again.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "데이터 저장에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -434,14 +444,14 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if ( pressedTime == 0 ) {
-            Toast.makeText(SignUpActivity.this, "Press once more to exit." , Toast.LENGTH_SHORT).show();
+            Toast.makeText(SignUpActivity.this, "한번 더 누르면 종료됩니다." , Toast.LENGTH_SHORT).show();
             pressedTime = System.currentTimeMillis();
         }
         else {
             int seconds = (int) (System.currentTimeMillis() - pressedTime);
 
             if ( seconds > 2000 ) {
-                Toast.makeText(SignUpActivity.this, "Press once more to exit." , Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignUpActivity.this, "한번 더 누르면 종료됩니다." , Toast.LENGTH_SHORT).show();
                 pressedTime = 0 ;
             }
             else {

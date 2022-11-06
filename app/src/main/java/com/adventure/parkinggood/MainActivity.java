@@ -3,21 +3,32 @@ package com.adventure.parkinggood;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +47,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -51,16 +64,25 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     TextView tv_name;
     TextView tv_email;
-    RelativeLayout btn_add;
     CircleImageView iv_profile;
     RecyclerView rc;
-    RecyclerView travel_rc;
-    int cnt = 0;
+    private final int REQUEST_CODE_LOCATION_PERMISSION = 21;
+    private final int REQUEST_CODE_BACKGROUND_LOCATION_PERMISSION = 21;
+    private boolean locationPermissionGranted;
+    CardView mother;
+    TextView tv_address;
+    TextView tv_location;
+    TextView tv_date;
+    TextView tv_dateTime ;
+    TextView tv_undateTime ;
+    TextView tv_parking_name;
+    CircleImageView profile ;
+    Button btn_unparking;
+    LinearLayout locate_view;
 
-    List<String> list = new ArrayList<>();
-    List<String> progress_ids = new ArrayList<>();
-    List<String> upcoming_ids = new ArrayList<>();
-    List<String> end_ids = new ArrayList<>();
+
+
+    Switch sw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,22 +108,45 @@ public class MainActivity extends AppCompatActivity {
             });
             drawerLayout = (DrawerLayout) findViewById(R.id.dl_main_drawer_root);
             navigationView = (NavigationView) findViewById(R.id.nv_main_navigation_root);
-            travel_rc = findViewById(R.id.travel_rc);
             headerView = navigationView.getHeaderView(0);
             tv_name = headerView.findViewById(R.id.tv_name);
             tv_email = headerView.findViewById(R.id.tv_email);
             iv_profile = headerView.findViewById(R.id.profile);
-            btn_add = headerView.findViewById(R.id.btn_add);
             rc = headerView.findViewById(R.id.rc);
             ImageView iv_logout = headerView.findViewById(R.id.iv_logout);
-            rc.setLayoutManager(new LinearLayoutManager(this));
-            travel_rc.setLayoutManager(new LinearLayoutManager(this));
-            btn_add.setOnClickListener(new OnSingleClickListener() {
+            sw = headerView.findViewById(R.id.switch1);
+            mother = findViewById(R.id.mother);
+            tv_address = findViewById(R.id.tv_origin);
+            tv_location = findViewById(R.id.tv_dest);
+            tv_date = findViewById(R.id.tv_depdate);
+            tv_dateTime = findViewById(R.id.tv_dep);
+            tv_undateTime = findViewById(R.id.tv_arr);
+            tv_parking_name = findViewById(R.id.tv_name);
+            profile = findViewById(R.id.profile);
+            btn_unparking = findViewById(R.id.btn_unparking);
+            locate_view = findViewById(R.id.dest_view);
+
+            sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onSingleClick(View v) {
-                    showAddFriendDialog();
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if(b){
+                        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_PERMISSION);
+                        } else {
+                            if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                showPermissionDialog();
+                            }else {
+                                startLocationService();
+                            }
+                        }
+                    }else {
+                        stopLocationService();
+                    }
                 }
             });
+
+            rc.setLayoutManager(new LinearLayoutManager(this));
+
             iv_logout.setOnClickListener(new OnSingleClickListener() {
                 @Override
                 public void onSingleClick(View v) {
@@ -125,6 +170,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onDrawerOpened(View drawerView) {
                     super.onDrawerOpened(drawerView);
                     getUserData();
+                    if (isLocationServiceRunning()) {
+                        sw.setText("On");
+                        sw.setChecked(true);
+                    }else {
+                        sw.setText("Off");
+                        sw.setChecked(false);
+                    }
                 }
             });
 
@@ -137,6 +189,143 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    public void setMyParking(Parking myParking){
+        mother.setVisibility(View.VISIBLE);
+        mother.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                startActivity(intent);
+            }
+        });
+        tv_address.setText(myParking.address);
+        if(myParking.place != null){
+            locate_view.setVisibility(View.VISIBLE);
+            tv_location.setText(String.format("%s, %d층 %s자리", myParking.place.name, myParking.place.floor+1, myParking.place.key));
+        }else {
+            locate_view.setVisibility(View.GONE);
+        }
+        tv_parking_name.setText(myParking.name);
+        if(myParking.profile != null){
+            Glide.with(MainActivity.this).load(Uri.parse(myParking.profile)).into(profile);
+        }else {
+            profile.setImageResource(R.drawable.profile);
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일");
+        String getDate = sdf.format(myParking.date);
+        tv_date.setText(getDate);
+        SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm a");
+        tv_dateTime.setText(sdf2.format(myParking.date) + " 주차");
+        if(myParking.unparking_date != null){
+            tv_undateTime.setText(sdf2.format(myParking.unparking_date));
+        }else {
+            tv_undateTime.setText("예정 없음");
+        }
+        btn_unparking.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                 removeMyCar(myParking);
+            }
+        });
+
+    }
+    public void removeMyCar(Parking parking){
+        LoadingView loadingView = new LoadingView(MainActivity.this);
+        loadingView.show("주차 해제 중...");
+        db.collection("users").document(currentUser.getUid()).update("current_car", null).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                loadingView.stop();
+                Toast.makeText(MainActivity.this, "주차 해제 완료되었습니다.", Toast.LENGTH_LONG).show();
+                getUserData();
+            }
+        });
+        if(parking.place != null){
+            db.collection("place").document(parking.place.id).update("parkings", FieldValue.arrayRemove(parking));
+        }
+        db.collection("map").document("map").update("parkings", FieldValue.arrayRemove(parking));
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_LOCATION_PERMISSION && grantResults.length > 0) {
+            locationPermissionGranted = true;
+            showPermissionDialog();
+        }
+        if (requestCode == REQUEST_CODE_BACKGROUND_LOCATION_PERMISSION && grantResults.length > 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if(locationPermissionGranted) {
+                    startLocationService();
+                }else{
+                    Toast.makeText(this, "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "퍼미션이 거부되었습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
+    private void showPermissionDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("권한 필요");
+        builder.setMessage("백그라운드 위치 권한을 위해 항상 허용으로 설정해주세요.");
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                backgroundPermission();
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.create().show();
+    }
+
+
+
+    private void backgroundPermission(){
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, REQUEST_CODE_BACKGROUND_LOCATION_PERMISSION);
+    }
+
+    private boolean isLocationServiceRunning() {
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        if (activityManager != null) {
+            for (ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (ParkingService.class.getName().equals(service.service.getClassName())) {
+                    if (service.foreground) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+    private void startLocationService() {
+        if (!isLocationServiceRunning()) {
+            sw.setText("On");
+            Intent intent = new Intent(getApplicationContext(), ParkingService.class);
+            intent.setAction(Constants.ACTION_START_LOCATION_SERVICE);
+            startService(intent);
+            Toast.makeText(this, "주차 자동 감지 기능이 실행되었습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void stopLocationService() {
+        if (isLocationServiceRunning()) {
+            sw.setText("Off");
+            Intent intent = new Intent(getApplicationContext(), ParkingService.class);
+            intent.setAction(Constants.ACTION_STOP_LOCATION_SERVICE);
+            startService(intent);
+            Toast.makeText(this, "주차 자동 감지 기능이 중지되었습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     @Override
     protected void onResume() {
@@ -171,140 +360,31 @@ public class MainActivity extends AppCompatActivity {
                         if(user.profile != null){
                             Glide.with(MainActivity.this).load(Uri.parse(user.profile)).into(iv_profile);
                         }
-                        List<String> friends = user.getFriends();
-
-                        if(friends != null) {
-                            getFriendData(friends);
-                        }
-
-                    }
-                }
-            }
-        });
-    }
-
-    public void getFriendData(List<String> friends){
-        List<User> users = new ArrayList<>();
-        cnt = 0;
-        for(String uid : friends){
-            db.collection("users").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    cnt++;
-                    if(task.isSuccessful()){
-                        User user = task.getResult().toObject(User.class);
-                        if(user != null){
-                            users.add(user);
-                        }
-                    }
-                    if(cnt == friends.size()){
-                        UserListAdopter userListAdopter = new UserListAdopter(users, false, MainActivity.this, null);
-                        rc.setAdapter(userListAdopter);
-                    }
-                }
-            });
-        }
-    }
-
-
-    public void showAddFriendDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.addfriends_dialog, (RelativeLayout) findViewById(R.id.dialog));
-        EditText ed_email = view.findViewById(R.id.ed_email);
-        builder.setView(view);
-        builder.setCancelable(false);
-        builder.setPositiveButton("OK", null);
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new OnSingleClickListener() {
-                    @Override
-                    public void onSingleClick(View v) {
-                        String email = ed_email.getText().toString();
-                        if(email.length() > 0){
-                            if(email.equals(currentUser.getEmail())){
-                                ed_email.setError("You can't be friends with yourself");
-                            }else {
-                                if(!email.contains("@")){
-                                    ed_email.setError("Please enter a valid email address.");
-                                }else {
-                                    LoadingView loadingView = new LoadingView(MainActivity.this);
-                                    loadingView.show("Searching for Friends...");
-                                    db.collection("users").whereEqualTo("email", email).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if(task.isSuccessful()){
-                                                List<DocumentSnapshot> list = task.getResult().getDocuments();
-                                                if(list.size() > 0){
-                                                    String uid = (String) list.get(0).get("uid");
-                                                    addFriends(uid, loadingView, dialog);
-                                                }else {
-                                                    loadingView.stop();
-                                                    ed_email.setError("There are no friends with this email.");
-                                                }
-                                            }else {
-                                                loadingView.stop();
-                                                ed_email.setError("There are no friends with this email.");
-                                            }
-                                        }
-                                    });
-                                }
-                            }
+                        if(user.getCurrent_car() != null){
+                            setMyParking(user.getCurrent_car());
                         }else {
-                            ed_email.setError("Please enter your email address");
+                            mother.setVisibility(View.GONE);
                         }
-                    }
-                });
-            }
-        });
-        alertDialog.show();
-    }
 
-    public void addFriends(String uid, LoadingView loadingView, DialogInterface dialog){
-        db.collection("users").document(currentUser.getUid()).update("friends", FieldValue.arrayUnion(uid)).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    db.collection("users").document(uid).update("friends", FieldValue.arrayUnion(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            loadingView.stop();
-                            if(task.isSuccessful()){
-                                Toast.makeText(MainActivity.this, "Friend added!" , Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                                getUserData();
-                            }else {
-                                Toast.makeText(MainActivity.this, "Failed to add friend." , Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }else {
-                    loadingView.stop();
-                    Toast.makeText(MainActivity.this, "Failed to add friend." , Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
     }
+
+
 
     @Override
     public void onBackPressed() {
         if ( pressedTime == 0 ) {
-            Toast.makeText(MainActivity.this, "Press once more to exit." , Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "한번 더 누르면 종료됩니다." , Toast.LENGTH_SHORT).show();
             pressedTime = System.currentTimeMillis();
         }
         else {
             int seconds = (int) (System.currentTimeMillis() - pressedTime);
 
             if ( seconds > 2000 ) {
-                Toast.makeText(MainActivity.this, "Press once more to exit." , Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "한번 더 누르면 종료됩니다." , Toast.LENGTH_SHORT).show();
                 pressedTime = 0 ;
             }
             else {

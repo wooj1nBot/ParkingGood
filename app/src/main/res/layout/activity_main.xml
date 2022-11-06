@@ -55,12 +55,6 @@
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/travel_rc"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/bar" />
-
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fb_add"
                 android:layout_width="wrap_content"
@@ -76,6 +70,258 @@
                 app:srcCompat="@drawable/map_48px"
                 app:tint="#ffffff" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/bar"
+                android:layout_marginTop="40dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:fontFamily="@font/scdream5"
+                    android:text="내 주차"
+                    android:textColor="#222222"
+                    android:textSize="16dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/mother"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:clickable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:visibility="gone">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="10dp"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="15dp"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_vertical"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/scdream5"
+                                        android:text="주소"
+                                        android:textColor="#585858"
+                                        android:textSize="14dp" />
+
+                                    <TextView
+                                        android:id="@+id/tv_origin"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="15dp"
+                                        android:ellipsize="end"
+                                        android:fontFamily="@font/scdream5"
+                                        android:lineSpacingExtra="3dp"
+                                        android:maxLines="2"
+                                        android:textColor="#222222"
+                                        android:textSize="15dp" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/dest_view"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="15dp"
+                                    android:layout_marginTop="15dp"
+                                    android:orientation="horizontal"
+                                    android:visibility="visible">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_vertical"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/scdream5"
+                                        android:text="위치"
+                                        android:textColor="#585858"
+                                        android:textSize="14dp" />
+
+                                    <TextView
+                                        android:id="@+id/tv_dest"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="15dp"
+                                        android:ellipsize="end"
+                                        android:fontFamily="@font/scdream5"
+                                        android:lineSpacingExtra="3dp"
+                                        android:maxLines="2"
+                                        android:textColor="#222222"
+                                        android:textSize="15dp" />
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical|end"
+                                android:layout_marginEnd="10dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_depdate"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/scdream5"
+                                    android:text="2019 Fri, Apr 29 "
+                                    android:textColor="#222222"
+                                    android:textSize="14dp" />
+
+                                <TextView
+                                    android:id="@+id/tv_dep"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:layout_marginTop="10dp"
+                                    android:fontFamily="@font/scdream5"
+                                    android:gravity="end"
+                                    android:paddingEnd="5dp"
+                                    android:text="10:19 AM"
+                                    android:textColor="#222222"
+                                    android:textSize="15dp" />
+
+                                <TextView
+                                    android:id="@+id/tv_arr"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:layout_marginTop="10dp"
+                                    android:fontFamily="@font/scdream5"
+                                    android:gravity="end"
+                                    android:paddingEnd="5dp"
+                                    android:text="10:19 AM"
+                                    android:textColor="#222222"
+                                    android:textSize="15dp" />
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="#eeeeee" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="15dp">
+
+                            <TextView
+                                android:id="@+id/textView14"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerVertical="true"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginStart="20dp"
+                                android:fontFamily="@font/scdream5"
+                                android:text="운전자"
+                                android:textColor="#585858"
+                                android:textSize="14dp" />
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="wrap_content"
+                                android:layout_height="40dp"
+                                android:layout_alignParentEnd="false"
+                                android:layout_marginStart="15dp"
+                                android:layout_marginTop="3dp"
+                                android:layout_marginBottom="3dp"
+                                android:layout_toEndOf="@id/textView14"
+                                app:cardCornerRadius="10dp"
+                                app:cardElevation="1dp">
+
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <TextView
+                                        android:id="@+id/tv_name"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_centerVertical="true"
+                                        android:layout_marginStart="5dp"
+                                        android:layout_marginEnd="10dp"
+                                        android:layout_toEndOf="@id/profile"
+                                        android:fontFamily="@font/scdream5"
+                                        android:singleLine="true"
+                                        android:textColor="#222222"
+                                        android:textSize="15dp" />
+
+                                    <de.hdodenhof.circleimageview.CircleImageView
+                                        android:id="@+id/profile"
+                                        android:layout_width="40dp"
+                                        android:layout_height="40dp"
+                                        android:padding="5dp"
+                                        android:src="@drawable/profile"></de.hdodenhof.circleimageview.CircleImageView>
+
+                                </RelativeLayout>
+
+                            </androidx.cardview.widget.CardView>
+
+                            <Button
+                                android:id="@+id/btn_unparking"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="false"
+                                android:layout_gravity="end"
+                                android:layout_marginStart="30dp"
+                                android:layout_marginBottom="5dp"
+                                android:backgroundTint="#F8A954"
+                                android:fontFamily="@font/basic"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp"
+                                android:text="주차 해제"
+                                android:textAllCaps="false"
+                                android:textColor="#ffffff"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:visibility="visible"
+                                app:cornerRadius="20dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
 
         </RelativeLayout>
 
@@ -85,6 +331,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:fitsSystemWindows="true"
+            android:visibility="gone"
             app:headerLayout="@layout/nav_header_main" />
 
 

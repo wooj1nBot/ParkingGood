@@ -3,6 +3,9 @@ package com.adventure.parkinggood;
 import com.google.android.libraries.places.api.model.Place;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ParkingPlace implements Serializable {
 
@@ -13,6 +16,8 @@ public class ParkingPlace implements Serializable {
     CustomLatLng latLng;
     int row;
     int column;
+    int floor;
+    ArrayList<Parking> parkings;
 
     public ParkingPlace(Place place){
         name = place.getName();
@@ -23,10 +28,44 @@ public class ParkingPlace implements Serializable {
     }
 
 
+    public ArrayList<Parking> getParkings() {
+        return parkings;
+    }
+
+
+    public Parking isHasParking(String uid){
+        if(parkings == null){
+            return null;
+        }
+        for(Parking p : parkings){
+            if(p.uid.equals(uid)) return p;
+        }
+        return null;
+    }
+
+    public boolean isHasParking(int floor, String key){
+        if(parkings == null){
+            return false;
+        }
+        for(Parking p : parkings){
+           SimplePlace place = p.getPlace();
+           if(place.floor == floor && place.key.equals(key)) return true;
+        }
+        return false;
+    }
+
     public ParkingPlace(){}
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
+
+    public int getFloor() {
+        return floor;
     }
 
     public void setColumn(int column) {

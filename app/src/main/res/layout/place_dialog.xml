@@ -86,6 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="5dp"
+                android:layout_marginBottom="15dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -241,6 +242,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp" />
+
             <TextView
                 android:id="@+id/tv_not"
                 android:layout_width="wrap_content"
@@ -254,15 +263,18 @@
 
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_below="@id/spinner"
+                android:layout_marginTop="10dp">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:orientation="vertical">
 
                     <HorizontalScrollView
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
                         <LinearLayout

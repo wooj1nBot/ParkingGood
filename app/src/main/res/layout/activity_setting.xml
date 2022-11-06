@@ -71,7 +71,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="65dp">
+                android:layout_height="100dp">
 
                 <Button
                     android:id="@+id/btn_mode2"
@@ -94,69 +94,108 @@
                     app:cornerRadius="20dp" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                    <TextView
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="20dp"
+                            android:fontFamily="@font/scdream5"
+                            android:text="층 수"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/ed_floor"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="15dp"
+                            android:background="@drawable/stroke_login"
+                            android:inputType="numberDecimal"
+                            android:maxLength="2"
+                            android:paddingStart="15dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="15dp"
+                            android:paddingBottom="5dp"
+                            android:text="1" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="20dp"
-                        android:fontFamily="@font/scdream5"
-                        android:text="가로"
-                        android:textStyle="bold" />
+                        android:layout_height="50dp"
+                        android:orientation="horizontal">
 
-                    <EditText
-                        android:id="@+id/ed_column"
-                        android:layout_width="50dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="15dp"
-                        android:background="@drawable/stroke_login"
-                        android:inputType="numberDecimal"
-                        android:maxLength="2"
-                        android:paddingStart="15dp"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="15dp"
-                        android:paddingBottom="5dp"
-                        android:text="3" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="20dp"
+                            android:fontFamily="@font/scdream5"
+                            android:text="가로"
+                            android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/textView14"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="20dp"
-                        android:fontFamily="@font/scdream5"
-                        android:text="X"
-                        android:textStyle="bold" />
+                        <EditText
+                            android:id="@+id/ed_column"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="15dp"
+                            android:background="@drawable/stroke_login"
+                            android:inputType="numberDecimal"
+                            android:maxLength="2"
+                            android:paddingStart="15dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="15dp"
+                            android:paddingBottom="5dp"
+                            android:text="3" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="20dp"
-                        android:fontFamily="@font/scdream5"
-                        android:text="세로"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/textView14"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="20dp"
+                            android:fontFamily="@font/scdream5"
+                            android:text="X"
+                            android:textStyle="bold" />
 
-                    <EditText
-                        android:id="@+id/ed_row"
-                        android:layout_width="50dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="15dp"
-                        android:background="@drawable/stroke_login"
-                        android:inputType="numberDecimal"
-                        android:maxLength="2"
-                        android:paddingStart="15dp"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="15dp"
-                        android:paddingBottom="5dp"
-                        android:text="3" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="20dp"
+                            android:fontFamily="@font/scdream5"
+                            android:text="세로"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/ed_row"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="15dp"
+                            android:background="@drawable/stroke_login"
+                            android:inputType="numberDecimal"
+                            android:maxLength="2"
+                            android:paddingStart="15dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="15dp"
+                            android:paddingBottom="5dp"
+                            android:text="3" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
+
             </RelativeLayout>
 
         </LinearLayout>

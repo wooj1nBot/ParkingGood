@@ -69,11 +69,11 @@ public class LoginActivity extends AppCompatActivity {
                 String password = ed_password.getText().toString();
                 if(email.length() > 0){
                     if(!email.contains("@")){
-                        ed_email.setError("Please enter a valid email address.");
+                        ed_email.setError("올바른 이메일 주소를 적어주세요.");
                     }else {
                         if (password.length() > 0) {
                             if(password.length() < 6){
-                                ed_password.setError("Please enter a password of at least 6 digits.");
+                                ed_password.setError("6자리 이상의 비밀번호를 입력해주세요.");
                             }else {
                                 LoadingView loadingView = new LoadingView(LoginActivity.this);
                                 loadingView.show("loading...");
@@ -84,8 +84,8 @@ public class LoginActivity extends AppCompatActivity {
                                             start(loadingView);
                                         }else {
                                             loadingView.stop();
-                                            Toast.makeText(LoginActivity.this, "This is an unsigned email or password.", Toast.LENGTH_SHORT).show();
-                                            ed_email.setError("This is an unsigned email or password.");
+                                            Toast.makeText(LoginActivity.this, "가입되지 않은 이메일 또는 비밀번호입니다.", Toast.LENGTH_SHORT).show();
+                                            ed_email.setError("가입되지 않은 이메일 또는 비밀번호입니다.");
                                         }
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
@@ -96,11 +96,11 @@ public class LoginActivity extends AppCompatActivity {
                                 });
                             }
                         } else {
-                            ed_password.setError("Please enter a password.");
+                            ed_password.setError("비밀번호를 입력해주세요.");
                         }
                     }
                 }else {
-                    ed_email.setError("Please enter email address.");
+                    ed_email.setError("이메일을 입력해주세요.");
                 }
             }
         });
@@ -214,21 +214,21 @@ public class LoginActivity extends AppCompatActivity {
 
         }else {
             loadingView.stop();
-            Toast.makeText(LoginActivity.this, "This account is not email-verified.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "이메일 인증이 완료되지 않은 계정입니다.", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onBackPressed() {
         if ( pressedTime == 0 ) {
-            Toast.makeText(LoginActivity.this, "Press once more to exit." , Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "한번 더 누르면 종료됩니다." , Toast.LENGTH_SHORT).show();
             pressedTime = System.currentTimeMillis();
         }
         else {
             int seconds = (int) (System.currentTimeMillis() - pressedTime);
 
             if ( seconds > 2000 ) {
-                Toast.makeText(LoginActivity.this, "Press once more to exit." , Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "한번 더 누르면 종료됩니다." , Toast.LENGTH_SHORT).show();
                 pressedTime = 0 ;
             }
             else {

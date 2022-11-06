@@ -32,8 +32,8 @@
             android:layout_alignParentBottom="false"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="70dp"
-            app:tint="#F18C21"
-            app:srcCompat="@drawable/map_48px" />
+            app:srcCompat="@drawable/mapfll_48px"
+            app:tint="#F18C21" />
 
         <TextView
             android:id="@+id/textView11"
@@ -61,7 +61,7 @@
             android:focusable="true"
             android:fontFamily="@font/nanum_cm"
             android:foreground="?android:attr/selectableItemBackground"
-            android:hint="Email"
+            android:hint="이메일"
             android:inputType="textEmailAddress"
             android:paddingStart="30dp"
             android:paddingEnd="20dp"
@@ -84,7 +84,7 @@
             android:focusable="true"
             android:fontFamily="@font/nanum_cm"
             android:foreground="?android:attr/selectableItemBackground"
-            android:hint="Password"
+            android:hint="비밀번호"
             android:inputType="textPassword"
             android:maxLength="8"
             android:paddingStart="30dp"
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:fontFamily="@font/scdream5_code"
-                android:text="Login"
+                android:text="로그인"
                 android:textColor="#FFFFFF"
                 android:textSize="18dp" />
         </androidx.cardview.widget.CardView>
@@ -139,7 +139,7 @@
                 android:clickable="false"
                 android:fontFamily="@font/nanum_cm"
                 android:padding="10dp"
-                android:text="Don't have an acount?" />
+                android:text="계정이 없다면?" />
 
             <TextView
                 android:id="@+id/find_password2"
@@ -151,7 +151,7 @@
                 android:clickable="false"
                 android:fontFamily="@font/nanum_cm"
                 android:padding="10dp"
-                android:text="Sign Up"
+                android:text="가입 하기"
                 android:textColor="#F18C21" />
         </RelativeLayout>
     </RelativeLayout>

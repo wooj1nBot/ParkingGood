@@ -8,21 +8,25 @@ public class User implements Serializable {
     String email;
     String uid;
     String profile;
+    String phone;
     String token;
     Parking current_car;
     List<Parking> parking_record;
-    List<String> friends;
 
     public User() {}
 
-    public User(String name, String email, String uid, String profile, String token){
+    public User(String name, String email, String uid, String profile, String phone, String token){
         this.name = name;
         this.email = email;
         this.uid = uid;
         this.profile = profile;
+        this.phone = phone;
         this.token = token;
     }
 
+    public String getPhone() {
+        return phone;
+    }
 
     public String getEmail() {
         return email;
@@ -46,10 +50,6 @@ public class User implements Serializable {
 
     public Parking getCurrent_car() {
         return current_car;
-    }
-
-    public List<String> getFriends() {
-        return friends;
     }
 
     public List<Parking> getParking_record() {

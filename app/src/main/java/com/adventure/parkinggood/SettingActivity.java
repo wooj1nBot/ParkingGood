@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +23,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class SettingActivity extends AppCompatActivity {
 
     TableLayout tableLayout;
 
     int row = 3;
     int column = 3;
-    private final int size = 200;
+    int floor = 1;
+    public static final int PARKING_SIZE = 200;
     private FirebaseFirestore db;
 
     @Override
@@ -43,18 +48,23 @@ public class SettingActivity extends AppCompatActivity {
         tv_name.setText(place.getName());
         tableLayout = findViewById(R.id.table);
         EditText ed_row = findViewById(R.id.ed_row);
+        EditText ed_floor = findViewById(R.id.ed_floor);
         EditText ed_col = findViewById(R.id.ed_column);
         Button btn_setting = findViewById(R.id.btn_mode2);
         btn_setting.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(View v) {
                 String r = ed_row.getText().toString();
-                if(r.length() > 0){
-                    String c = ed_col.getText().toString();
-                    if(c.length() > 0){
-                         row = Integer.parseInt(r);
-                         column = Integer.parseInt(c);
-                         setTable(row, column);
+                String f = ed_floor.getText().toString();
+                if(f.length() > 0){
+                    if(r.length() > 0){
+                        String c = ed_col.getText().toString();
+                        if(c.length() > 0){
+                            row = Integer.parseInt(r);
+                            column = Integer.parseInt(c);
+                            floor = Integer.parseInt(f);
+                            setTable(row, column);
+                        }
                     }
                 }
             }
@@ -63,8 +73,16 @@ public class SettingActivity extends AppCompatActivity {
         iv_done.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(View v) {
-                  place.setRow(row);
-                  place.setColumn(column);
+                if(row > 0){
+                    if(column > 0){
+                        place.setRow(row);
+                        place.setColumn(column);
+                        place.setFloor(floor);
+                        place.parkings = new ArrayList<>();
+                        saveParkingPlace(place);
+                    }
+                }
+
 
             }
         });
@@ -87,7 +105,9 @@ public class SettingActivity extends AppCompatActivity {
                  loadingView.stop();
                  if(task.isSuccessful()){
                      Toast.makeText(SettingActivity.this, "주차장 설정이 완료되었습니다.", Toast.LENGTH_LONG).show();
+                     finish();
                  }else {
+                     Log.d("dwdw", "Faf");
                      Toast.makeText(SettingActivity.this, "주차장 설정에 실패했습니다.", Toast.LENGTH_LONG).show();
                  }
             }
@@ -110,7 +130,7 @@ public class SettingActivity extends AppCompatActivity {
             for (int td = 0; td < c; td++) {              // for문을 이용한 칸수 (TD)
 
                 text[tr][td] = new TextView(this);
-                TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(size,size);
+                TableRow.LayoutParams layoutParams = new TableRow.LayoutParams(PARKING_SIZE,PARKING_SIZE);
                 if(td == 0){
                     layoutParams.setMargins(0, margin, margin, margin);
                 }else if(td == c-1){

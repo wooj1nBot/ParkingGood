@@ -21,9 +21,30 @@
         <entry key="..\:/AdventureDesign/app/src/main/res/layout/place_dialog.xml" value="0.4466666666666667" />
         <entry key="..\:/AdventureDesign/app/src/main/res/layout/profile_dialog.xml" value="0.19882246376811594" />
         <entry key="..\:/AdventureDesign/app/src/main/res/layout/user_list.xml" value="0.19882246376811594" />
-        <entry key="..\:/ParkingGood/app/src/main/res/layout/activity_main.xml" value="0.1515625" />
-        <entry key="..\:/ParkingGood/app/src/main/res/layout/activity_setting.xml" value="0.1515625" />
-        <entry key="..\:/ParkingGood/app/src/main/res/layout/nav_header_main.xml" value="0.18020833333333333" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/flag_48px.xml" value="0.1" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/local_parking_48px.xml" value="0.1" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/map_48px.xml" value="0.1195" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/mapfll_48px.xml" value="0.119" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/minor_crash_48px.xml" value="0.119" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/stroke_activie.xml" value="0.1" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/stroke_inactive.xml" value="0.1" />
+        <entry key="..\:/ParkingGood/app/src/main/res/drawable/stroke_select.xml" value="0.1195" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/activity_login.xml" value="0.3016304347826087" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/activity_main.xml" value="0.4466666666666667" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/activity_map.xml" value="0.302536231884058" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/activity_setting.xml" value="0.3333333333333333" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/activity_sign_up.xml" value="0.3333333333333333" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/custom_marker.xml" value="0.302536231884058" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/driver_dialog.xml" value="0.4466666666666667" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/icon.xml" value="0.3333333333333333" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/loading_layout.xml" value="0.302536231884058" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/location_dialog.xml" value="0.302536231884058" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/nav_header_main.xml" value="0.3333333333333333" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/place_dialog.xml" value="0.4466666666666667" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/profile_dialog.xml" value="0.3016304347826087" />
+        <entry key="..\:/ParkingGood/app/src/main/res/layout/user_list.xml" value="0.3016304347826087" />
+        <entry key="..\:/ParkingGood/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.119" />
+        <entry key="..\:/ParkingGood/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.119" />
       </map>
     </option>
   </component>

@@ -76,7 +76,7 @@
                     android:layout_height="55dp"
                     android:background="@drawable/stroke_edit"
                     android:fontFamily="@font/nanum_cm"
-                    android:hint="Name"
+                    android:hint="이름"
                     android:inputType="text"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
@@ -100,8 +100,43 @@
                     android:layout_height="55dp"
                     android:background="@drawable/stroke_edit"
                     android:fontFamily="@font/nanum_cm"
-                    android:hint="6 or more digit password"
+                    android:hint="6자리 이상의 비밀번호"
                     android:inputType="textPassword"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:singleLine="true"
+                    android:textSize="18dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/password"
+                android:layout_alignStart="@id/password"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/scdream5"
+                android:text="선택 항목 (주차 통화 및 메시지 목적)"
+                android:textSize="14sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phone"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_below="@id/textView13"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="50dp"
+                android:gravity="bottom">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:background="@drawable/stroke_edit"
+                    android:fontFamily="@font/nanum_cm"
+                    android:hint="휴대폰 번호"
+                    android:inputType="phone"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:singleLine="true"
@@ -124,7 +159,7 @@
                     android:layout_height="55dp"
                     android:background="@drawable/stroke_edit"
                     android:fontFamily="@font/nanum_cm"
-                    android:hint="Email"
+                    android:hint="이메일"
                     android:inputType="textEmailAddress"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
@@ -139,7 +174,7 @@
                 android:layout_height="50dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="40dp"
-                app:srcCompat="@drawable/map_48px"
+                app:srcCompat="@drawable/mapfll_48px"
                 app:tint="@color/main" />
 
             <androidx.cardview.widget.CardView
@@ -149,7 +184,7 @@
                 android:layout_below="@id/checkBox"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="25dp"
                 android:clickable="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 app:cardBackgroundColor="#eeeeee"
@@ -162,7 +197,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/scdream5_code"
-                    android:text="Verify Email"
+                    android:text="이메일 인증"
                     android:textColor="#FFFFFF"
                     android:textSize="18dp" />
             </androidx.cardview.widget.CardView>
@@ -171,14 +206,14 @@
                 android:id="@+id/checkBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/password"
+                android:layout_below="@id/phone"
                 android:layout_alignStart="@id/email"
                 android:layout_alignEnd="@id/email"
                 android:layout_centerHorizontal="false"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:buttonTint="@color/main"
                 android:paddingStart="10dp"
-                android:text="Personal Information Collection and Usage Agreement"
+                android:text="개인정보 수집 및 이용 동의"
                 android:textColor="#808080"
                 android:textSize="16dp" />
         </RelativeLayout>
