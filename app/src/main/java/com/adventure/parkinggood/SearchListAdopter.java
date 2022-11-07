@@ -54,7 +54,8 @@ public class SearchListAdopter extends RecyclerView.Adapter<SearchListAdopter.Vi
               @Override
               public void onClick(View view) {
                   int pos = (int) view.getTag();
-                  //
+                  Place place = locations.get(pos);
+                  mapActivity.getPlace(place.getId());
               }
           });
     }

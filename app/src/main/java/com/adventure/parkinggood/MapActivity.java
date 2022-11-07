@@ -130,6 +130,8 @@ public class MapActivity extends AppCompatActivity implements
     FirebaseUser currentUser;
     private FirebaseFirestore db;
     private String key;
+    private Parking parking;
+
     private static final double DEFAULT_TOLERANCE = 40;
 
     @Override
@@ -241,10 +243,7 @@ public class MapActivity extends AppCompatActivity implements
 
         Intent intent = getIntent();
 
-        Parking parking = (Parking) intent.getSerializableExtra("parking");
-        if(parking != null){
-            setParkingDialog(parking.latLng.gLatLng(), parking.address);
-        }
+        parking = (Parking) intent.getSerializableExtra("parking");
 
     }
 
@@ -298,6 +297,9 @@ public class MapActivity extends AppCompatActivity implements
                     setMyCarMarker(myCar);
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                             myCar.latLng.gLatLng(), DEFAULT_ZOOM));
+                }
+                if(parking != null){
+                    setParkingDialog(parking.latLng.gLatLng(), parking.address);
                 }
             }
         });
