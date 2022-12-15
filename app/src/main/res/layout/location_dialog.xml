@@ -126,7 +126,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="30dp"
             android:fontFamily="@font/scdream5"
-            android:text="주차 시각"
+            android:text="주차 날짜"
             android:textColor="#585858"
             android:textSize="15sp" />
 

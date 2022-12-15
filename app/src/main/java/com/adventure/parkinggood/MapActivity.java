@@ -12,8 +12,12 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +28,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -122,6 +127,7 @@ public class MapActivity extends AppCompatActivity implements
     private List<Place> searchLocations = new ArrayList<>();
     private FloatingActionButton fb_loc;
     private FloatingActionButton fb_mycar;
+    private List<ParkingPlace> places;
     private Parking myCar;
     private User user;
     private  Date time;
@@ -131,6 +137,9 @@ public class MapActivity extends AppCompatActivity implements
     private FirebaseFirestore db;
     private String key;
     private Parking parking;
+    private CardView messageView;
+    private TextView tv_message;
+
 
     private static final double DEFAULT_TOLERANCE = 40;
 
@@ -170,6 +179,13 @@ public class MapActivity extends AppCompatActivity implements
                 search_bar.setVisibility(View.VISIBLE);
             }
         });
+        ImageView iv_home = findViewById(R.id.iv_home);
+        iv_home.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                finish();
+            }
+        });
 
         ImageView iv_back = findViewById(R.id.back);
 
@@ -185,6 +201,9 @@ public class MapActivity extends AppCompatActivity implements
                 layout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
             }
         });
+        messageView = findViewById(R.id.messageview);
+        tv_message = findViewById(R.id.tv_message);
+
 
         EditText editText = findViewById(R.id.ed_search);
         editText.setOnKeyListener(new View.OnKeyListener() {
@@ -225,9 +244,11 @@ public class MapActivity extends AppCompatActivity implements
                 fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<android.location.Location>() {
                     @Override
                     public void onSuccess(android.location.Location location) {
+                        LatLng latLng =  new LatLng(location.getLatitude(),
+                                location.getLongitude());
                         map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(location.getLatitude(),
-                                        location.getLongitude()), DEFAULT_ZOOM));
+                                latLng, DEFAULT_ZOOM));
+                        showMessage(findMyNearByParkingCount(latLng), 50);
                     }
                 });
             }
@@ -244,6 +265,45 @@ public class MapActivity extends AppCompatActivity implements
         Intent intent = getIntent();
 
         parking = (Parking) intent.getSerializableExtra("parking");
+
+    }
+    public void showMessage(int count, int radius){
+        if(count == 0){
+            tv_message.setText(String.format("반경 %dm 이내에 등록된 주차장이 없습니다.", radius, count));
+        }else {
+            tv_message.setText(String.format("반경 %dm 이내에 등록된 주차장이 %d군데 있습니다.", radius, count));
+        }
+        messageView.setVisibility(View.VISIBLE);
+        ObjectAnimator animator = ObjectAnimator.ofFloat(messageView, "alpha", 0f, 1f);
+        animator.setDuration(1000);
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                ObjectAnimator animator = ObjectAnimator.ofFloat(messageView, "alpha", 1f, 1f);
+                animator.setDuration(1500);
+                animator.start();
+                animator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        ObjectAnimator animator = ObjectAnimator.ofFloat(messageView, "alpha", 1f, 0f);
+                        animator.setDuration(1000);
+                        animator.start();
+                        animator.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                messageView.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+
 
     }
 
@@ -323,7 +383,7 @@ public class MapActivity extends AppCompatActivity implements
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                  if(!queryDocumentSnapshots.isEmpty()){
-                     List<ParkingPlace> places = queryDocumentSnapshots.toObjects(ParkingPlace.class);
+                     places = queryDocumentSnapshots.toObjects(ParkingPlace.class);
                      drawParkingPlaceMarker(places);
                  }
             }
@@ -354,7 +414,11 @@ public class MapActivity extends AppCompatActivity implements
         if(marker_car != null) marker_car.remove();
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        init();
+    }
 
     public void setMyCarLoc(Parking parking){
 
@@ -419,6 +483,9 @@ public class MapActivity extends AppCompatActivity implements
     }
 
     public void setPlaceMarker(ParkingPlace parking){
+        float max = parking.row * parking.column * parking.floor;
+        float per = (max - parking.parkings.size()) / max;
+
         View view = LayoutInflater.from(MapActivity.this).inflate(R.layout.icon, (RelativeLayout) findViewById(R.id.rv));
         ImageView iv_marker = view.findViewById(R.id.imageView);
         ImageView iv_icon = view.findViewById(R.id.iv_icon);
@@ -428,8 +495,26 @@ public class MapActivity extends AppCompatActivity implements
         iconFactory.setContentView(view);
         iconFactory.setBackground(null);
         iv_icon.setImageResource(R.drawable.local_parking_48px);
-        iv_marker.setImageTintList(ColorStateList.valueOf(Color.parseColor("#43A047")));
-        fill.setBackgroundColor(Color.parseColor("#43A047"));
+
+        if(per == 0){
+            iv_marker.setImageTintList(ColorStateList.valueOf(Color.parseColor("#F04C22")));
+            fill.setBackgroundColor(Color.parseColor("#F04C22"));
+        }else {
+            if(per >= 0.75f){
+                iv_marker.setImageTintList(ColorStateList.valueOf(Color.parseColor("#43A047")));
+                fill.setBackgroundColor(Color.parseColor("#43A047"));
+            }else if(per >= 0.5f){
+                iv_marker.setImageTintList(ColorStateList.valueOf(Color.parseColor("#BFCB30")));
+                fill.setBackgroundColor(Color.parseColor("#BFCB30"));
+            }else if(per >= 0.25f){
+                iv_marker.setImageTintList(ColorStateList.valueOf(Color.parseColor("#FFAF19")));
+                fill.setBackgroundColor(Color.parseColor("#FFAF19"));
+            }else{
+                iv_marker.setImageTintList(ColorStateList.valueOf(Color.parseColor("#F68121")));
+                fill.setBackgroundColor(Color.parseColor("#F68121"));
+            }
+        }
+
         textView.setText("주차장");
 
         Marker de = map.addMarker(new MarkerOptions()
@@ -500,8 +585,7 @@ public class MapActivity extends AppCompatActivity implements
         }
 
         if(parking.unparking_date != null){
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일 hh:mm a");
-            tv_unparking_date.setText(sdf.format(parking.unparking_date));
+            tv_unparking_date.setText(getTimeDiff(parking.unparking_date.getTime()));
         }else {
             tv_unparking_date.setText("주차 예정 시간 없음");
         }
@@ -513,9 +597,7 @@ public class MapActivity extends AppCompatActivity implements
             }
         });
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일 hh:mm a");
-        String getDate = sdf.format(parking.date);
-        tv_date.setText(getDate);
+        tv_date.setText(getTimeDiff(parking.date.getTime()));
 
         builder.setView(view);
         builder.setCancelable(true);
@@ -544,7 +626,6 @@ public class MapActivity extends AppCompatActivity implements
         alertDialog.show();
 
     }
-
 
 
     public void setParkingDialog(LatLng latLng , String address){
@@ -609,12 +690,13 @@ public class MapActivity extends AppCompatActivity implements
                     public void onTimeSet(TimePicker timePicker, int i, int i1) {
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(date);
+                        if (cal.get(Calendar.HOUR_OF_DAY) > i) {
+                            cal.add(Calendar.DATE, 1);
+                        }
                         cal.set(Calendar.HOUR_OF_DAY, i);
                         cal.set(Calendar.MINUTE, i1);
                         time = cal.getTime();
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일 hh:mm a");
-                        String getDate = sdf.format(time);
-                        tv_unparking_date.setText(getDate);
+                        tv_unparking_date.setText(getTimeDiff(time.getTime()));
                     }
                 }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), false);
                 timePickerDialog.show();
@@ -626,6 +708,52 @@ public class MapActivity extends AppCompatActivity implements
 
 
         alertDialog.show();
+    }
+
+    public String getTimeDiff(Long longtime){
+        Long curret = System.currentTimeMillis();
+        Long diff = Math.abs(curret - longtime);
+        String af = curret - longtime >= 0 ? "전" : "후";
+
+        Long sec = diff / 1000;
+        Long min = sec/60;
+        Long hour = min/60;
+        Long day = hour/24;
+        Long week = day/7;
+        Long month = week/4;
+        Long year = month/12;
+        if(sec >= 60){
+            if(min >= 60){
+                if(hour >= 24){
+                    if(day >= 30){
+                        if(week >= 4){
+                            if(month >= 12){
+                                int y = year.intValue();
+                                return  y+"년 " + af;
+                            }else {
+                                int mon = month.intValue();
+                                return mon+"개월 " + af;
+                            }
+                        }else {
+                            int w = week.intValue();
+                            return w+"주 "+ af;
+                        }
+                    }else {
+                        int d = day.intValue();
+                        return d+"일 "+ af;
+                    }
+                }else {
+                    int h = hour.intValue();
+                    return h+"시간 "+ af;
+                }
+            }else {
+                int m = min.intValue();
+                return m+"분 "+ af;
+            }
+        }else {
+            int s = sec.intValue();
+            return s+"초 "+ af;
+        }
     }
 
     public void makeReservation(ParkingPlace parkingPlace, int floor, String key, AlertDialog dialog){
@@ -849,12 +977,17 @@ public class MapActivity extends AppCompatActivity implements
         tv_place.setText(place.getName());
         tv_address.setText(place.getAddress());
 
+        builder.setView(view);
+        builder.setCancelable(true);
+        AlertDialog alertDialog = builder.create();
+
+
         if(parkingPlace != null) {
             btn_book.setVisibility(View.VISIBLE);
             btn_setting.setVisibility(View.GONE);
 
             List<String> sp = new ArrayList<>();
-            for(int i = 0 ; i < parkingPlace.row; i++){
+            for(int i = 0 ; i < parkingPlace.floor; i++){
                 sp.add((i+1) + "층");
             }
             int cnt = parkingPlace.row * parkingPlace.column * parkingPlace.floor - parkingPlace.parkings.size();
@@ -868,7 +1001,7 @@ public class MapActivity extends AppCompatActivity implements
                 ist = true;
                 spinner.setSelection(user.current_car.place.floor);
             }else {
-                btn_book.setText("주차 예약");
+                btn_book.setText("주차 신청");
             }
             tv_space.setText(cnt + "자리");
 
@@ -892,17 +1025,17 @@ public class MapActivity extends AppCompatActivity implements
             btn_setting.setOnClickListener(new OnSingleClickListener() {
                 @Override
                 public void onSingleClick(View v) {
+                    alertDialog.dismiss();
                     Intent intent = new Intent(MapActivity.this, SettingActivity.class);
                     ParkingPlace parkingPlace = new ParkingPlace(place);
                     intent.putExtra("place", parkingPlace);
                     startActivity(intent);
+
                 }
             });
         }
 
-        builder.setView(view);
-        builder.setCancelable(true);
-        AlertDialog alertDialog = builder.create();
+
         btn_book.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(View v) {
@@ -1042,6 +1175,16 @@ public class MapActivity extends AppCompatActivity implements
         }
         return 0;
     }
+    public int findMyNearByParkingCount(LatLng myloc){
+        if(mapData != null){
+            int cnt = 0;
+            for(ParkingPlace p : places){
+                if(isNearBy(myloc, p.latLng.gLatLng(), 50)) cnt++;
+            }
+            return cnt;
+        }
+        return 0;
+    }
 
     public boolean isNearBy(LatLng place, LatLng parking, int DEFAULT_TOLERANCE){
         return calculateLocationDifference(place, parking) <= DEFAULT_TOLERANCE;
@@ -1067,7 +1210,7 @@ public class MapActivity extends AppCompatActivity implements
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        updateLocationUI();
+
     }
 
     private void updateLocationUI() {
@@ -1077,9 +1220,6 @@ public class MapActivity extends AppCompatActivity implements
         try {
             if (locationPermissionGranted) {
                 map.setMyLocationEnabled(true);
-                map.getUiSettings().setMyLocationButtonEnabled(false);
-            } else {
-                getLocationPermission();
             }
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
@@ -1096,10 +1236,40 @@ public class MapActivity extends AppCompatActivity implements
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
+            updateLocationUI();
         } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MapActivity.this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                AlertDialog.Builder localBuilder = new AlertDialog.Builder(this);
+                localBuilder.setTitle("위치 권한 설정")
+                        .setMessage("위치 권한 거절로 인해 자동 주차 감지 기능 및 내 위치 찾기 기능이 제한됩니다.")
+                        .setPositiveButton("권한 설정하러 가기", new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface paramAnonymousDialogInterface, int paramAnonymousInt){
+                                try {
+                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                            .setData(Uri.parse("package:" + getPackageName()));
+                                    startActivity(intent);
+                                } catch (ActivityNotFoundException e) {
+                                    e.printStackTrace();
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
+                                    startActivity(intent);
+                                }
+                            }})
+                        .setNegativeButton("취소하기", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface paramAnonymousDialogInterface, int paramAnonymousInt) {
+
+                            }})
+                        .create()
+                        .show();
+
+
+            }else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
+
         }
     }
 
@@ -1197,7 +1367,6 @@ public class MapActivity extends AppCompatActivity implements
                                 }
                             }
                         });
-
                     }
                 }else {
                     Toast.makeText(MapActivity.this, "등록된 장소가 아닙니다.", Toast.LENGTH_LONG).show();
@@ -1257,7 +1426,7 @@ public class MapActivity extends AppCompatActivity implements
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.map = googleMap;
         getLocationPermission();
-        updateLocationUI();
+        map.getUiSettings().setMyLocationButtonEnabled(false);
         init();
         if(locationPermissionGranted){
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<android.location.Location>() {

@@ -310,7 +310,7 @@ public class SignUpActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Toast.makeText(SignUpActivity.this, "인증용 이메일을 전송했습니다.", Toast.LENGTH_LONG).show();
                             isver = true;
-                            tv_join.setText("Complete Sign Up");
+                            tv_join.setText("회원가입 완료");
                             email_edit.setEnabled(false);
                             password_edit.setEnabled(false);
                             name_edit.setEnabled(false);

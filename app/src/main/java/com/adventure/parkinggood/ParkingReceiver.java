@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,7 +48,26 @@ public class ParkingReceiver extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(NOTIFICATION_PARKING);
         Parking parking = (Parking) intent.getSerializableExtra("parking");
-        setMyCarLoc(parking);
+        if(parking != null){
+            setMyCarLoc(parking);
+        }else {
+            parking = (Parking) intent.getSerializableExtra("parkingOff");
+            removeMyCar(parking, context);
+        }
+
+    }
+
+    public void removeMyCar(Parking parking, Context context){
+        db.collection("users").document(currentUser.getUid()).update("current_car", null).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Toast.makeText(context, "주차 해제 완료되었습니다.", Toast.LENGTH_LONG).show();
+            }
+        });
+        if(parking.place != null){
+            db.collection("place").document(parking.place.id).update("parkings", FieldValue.arrayRemove(parking));
+        }
+        db.collection("map").document("map").update("parkings", FieldValue.arrayRemove(parking));
     }
 
 

@@ -18,8 +18,7 @@
         android:theme="@style/Theme.AdventureDesign">
         <receiver
             android:name=".ParkingReceiver"
-            android:enabled="true"
-            android:exported="true">
+            android:exported="false">
         </receiver>
 
         <service
@@ -32,7 +31,7 @@
             android:exported="false" />
         <activity
             android:name=".MapActivity"
-            android:exported="false" >
+            android:exported="true" >
             <intent-filter>
                 <action android:name="FCM_PARKING_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />

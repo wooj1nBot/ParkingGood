@@ -8,9 +8,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -41,12 +43,11 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ParkingService extends Service{
 
-    private final int MIN_CAR_SPEED = 30;
+    private final int MIN_CAR_SPEED = 20;
     private final int PARKING_SPEED = 5;
     private boolean isStart = false;
-    private boolean isParking = false;
-    private long startTime;
-    private LatLng latLng;
+    private boolean isShow = false;
+    private long startTime = -1;
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     private User user;
@@ -73,41 +74,83 @@ public class ParkingService extends Service{
             super.onLocationResult(locationResult);
 
             if (locationResult.getLastLocation() != null) {
-                double latitude = locationResult.getLastLocation().getLatitude();
-                double longitude = locationResult.getLastLocation().getLongitude();
-                System.out.println(locationResult.getLastLocation().getSpeed() * 3.6f);
-                if(isStart){
-                    if(locationResult.getLastLocation().getSpeed() * 3.6f < PARKING_SPEED){
-                         if(startTime == 0){
-                             startTime = System.currentTimeMillis();
-                             latLng = new LatLng(latitude, longitude);
-                             isParking = true;
-                         }else {
-                             if(System.currentTimeMillis() - startTime > 1000 * 60 * 2 && isParking){
-                                  isStart = false;
-                                 try {
-                                     ReverseGeo(latLng);
-                                 } catch (UnsupportedEncodingException e) {
-                                     e.printStackTrace();
-                                 }
-                             }
-                         }
-                    }else {
-                        isParking = false;
-                        startTime = 0;
+                Location location = locationResult.getLastLocation();
+
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+
+                if(location.getSpeed() * 3.6f >= MIN_CAR_SPEED){
+                    LatLng latLng = new LatLng(latitude, longitude);
+                    checkParking(latLng, true);
+                }else if(location.getSpeed() * 3.6f <= PARKING_SPEED){
+                    LatLng latLng = new LatLng(latitude, longitude);
+                    checkParking(latLng, false);
+                    if(isStart){
+                        if(startTime == -1){
+                            startTime = System.currentTimeMillis();
+                        }else {
+                            if(System.currentTimeMillis() - startTime > 1000 * 60){ // 1분으로 변경
+                                isStart = false;
+                                try {
+                                    ReverseGeo(latLng);
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
                     }
                 }else {
-                    if(locationResult.getLastLocation().getSpeed() * 3.6f > MIN_CAR_SPEED){
-                        isStart = true;
-                        showStartNotification();
-                    }
+                    LatLng latLng = new LatLng(latitude, longitude);
+                    checkParking(latLng, false);
+                    startTime = -1;
                 }
 
             }
         }
     };
 
+    private void checkParking(LatLng latLng, boolean ist){
+
+        db.collection("users").document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if(documentSnapshot.exists()){
+                    user = documentSnapshot.toObject(User.class);
+                    if (user != null && user.current_car != null) {
+                        if(isNearBy(latLng, user.getCurrent_car().latLng.gLatLng(), 100)){
+                            if(!isShow) {
+                                isShow = true;
+                                showParkingOffNotification(user.current_car);
+                            }
+                        }
+                    }else {
+                        if(ist) {
+                            isStart = true;
+                            startTime = -1;
+                            showStartNotification();
+                        }
+                    }
+                }
+            }
+        });
+
+    }
+
+    public boolean isNearBy(LatLng place, LatLng parking, int DEFAULT_TOLERANCE){
+        return calculateLocationDifference(place, parking) > DEFAULT_TOLERANCE;
+    }
+
+    private float calculateLocationDifference(LatLng lastLocation, LatLng firstLocation) {
+        float[] dist = new float[1];
+        Location.distanceBetween(lastLocation.latitude, lastLocation.longitude, firstLocation.latitude, firstLocation.longitude, dist);
+        return dist[0];
+    }
+
+
+
+
     private void startLocationService() {
+        startTime = -1;
         String channelId = "location_notification_channel";
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Intent intent = new Intent(this, MainActivity.class);
@@ -131,8 +174,8 @@ public class ParkingService extends Service{
         }
 
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(2000);
-        locationRequest.setFastestInterval(1000);
+        locationRequest.setInterval(500);
+        locationRequest.setFastestInterval(500);
         locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -227,18 +270,19 @@ public class ParkingService extends Service{
 
     public void showParkingNotification(LatLng latLng, String address){
         Parking parking = new Parking(new CustomLatLng(latLng), address, new Date(System.currentTimeMillis()), null, user.name, currentUser.getUid(), user.profile,  user.phone, user.token);
+
         String channelId = "parking_notification_channel";
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Intent intent = new Intent(this, MapActivity.class);
         intent.putExtra("parking", parking);
         intent.setAction(Intent.ACTION_MAIN); intent.addCategory(Intent.CATEGORY_LAUNCHER); intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent snoozeIntent = new Intent(this, ParkingReceiver.class);
         snoozeIntent.setAction("PARKING_ACTION");
         snoozeIntent.putExtra("parking", parking);
         PendingIntent snoozePendingIntent =
-                PendingIntent.getBroadcast(this, 0, snoozeIntent, PendingIntent.FLAG_MUTABLE);
+                PendingIntent.getBroadcast(this, 0, snoozeIntent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId);
@@ -252,6 +296,43 @@ public class ParkingService extends Service{
         }else {
             builder.setContentText("주차를 감지했습니다. 주차하셨습니까?");
         }
+        builder.setContentIntent(pendingIntent);
+        builder.setAutoCancel(true);
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (notificationManager != null && notificationManager.getNotificationChannel(channelId) == null) {
+                NotificationChannel notificationChannel = new NotificationChannel(channelId, "Background Parking Service", NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.setDescription("This channel is used by location service");
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+
+        notificationManager.notify(NOTIFICATION_PARKING /* ID of notification */, builder.build());
+    }
+
+    public void showParkingOffNotification(Parking parking){
+
+        String channelId = "parking_notification_channel";
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Intent intent = new Intent(this, MapActivity.class);
+        intent.setAction(Intent.ACTION_MAIN); intent.addCategory(Intent.CATEGORY_LAUNCHER); intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent snoozeIntent = new Intent(this, ParkingReceiver.class);
+        snoozeIntent.setAction("PARKING_ACTION");
+        snoozeIntent.putExtra("parkingOff", parking);
+        PendingIntent snoozePendingIntent =
+                PendingIntent.getBroadcast(this, 0, snoozeIntent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId);
+        builder.setSmallIcon(R.drawable.map_48px);
+        builder.setContentTitle("주차 해제 감지");
+        builder.setDefaults(NotificationCompat.DEFAULT_ALL);
+        builder.addAction(R.drawable.done_48px,"예", snoozePendingIntent);
+
+        builder.setContentText("주차 해제를 감지했습니다. 주차 공간을 벗어났나요?");
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
         builder.setPriority(NotificationCompat.PRIORITY_MAX);
