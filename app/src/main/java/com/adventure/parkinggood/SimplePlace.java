@@ -1,6 +1,8 @@
 package com.adventure.parkinggood;
 
-public class SimplePlace {
+import java.io.Serializable;
+
+public class SimplePlace implements Serializable {
     String name;
     String id;
     String key;

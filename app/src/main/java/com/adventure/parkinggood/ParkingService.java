@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -29,7 +30,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -48,10 +51,13 @@ public class ParkingService extends Service{
     private boolean isStart = false;
     private boolean isShow = false;
     private long startTime = -1;
+    private long startOffTime = -1;
+
     FirebaseAuth mAuth;
     FirebaseUser currentUser;
     private User user;
     private FirebaseFirestore db;
+    private boolean ist = false;
     public static final int NOTIFICATION_PARKING = 127;
 
     public ParkingService() {
@@ -81,10 +87,12 @@ public class ParkingService extends Service{
 
                 if(location.getSpeed() * 3.6f >= MIN_CAR_SPEED){
                     LatLng latLng = new LatLng(latitude, longitude);
-                    checkParking(latLng, true);
+                    checkParking(latLng, location);
                 }else if(location.getSpeed() * 3.6f <= PARKING_SPEED){
+                    isShow = false;
                     LatLng latLng = new LatLng(latitude, longitude);
-                    checkParking(latLng, false);
+                    checkParking(latLng, location);
+
                     if(isStart){
                         if(startTime == -1){
                             startTime = System.currentTimeMillis();
@@ -101,7 +109,7 @@ public class ParkingService extends Service{
                     }
                 }else {
                     LatLng latLng = new LatLng(latitude, longitude);
-                    checkParking(latLng, false);
+                    checkParking(latLng, location);
                     startTime = -1;
                 }
 
@@ -109,7 +117,7 @@ public class ParkingService extends Service{
         }
     };
 
-    private void checkParking(LatLng latLng, boolean ist){
+    private void checkParking(LatLng latLng, Location location){
 
         db.collection("users").document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -117,18 +125,16 @@ public class ParkingService extends Service{
                 if(documentSnapshot.exists()){
                     user = documentSnapshot.toObject(User.class);
                     if (user != null && user.current_car != null) {
-                        if(isNearBy(latLng, user.getCurrent_car().latLng.gLatLng(), 100)){
+                        if(isNearBy(latLng, user.getCurrent_car().latLng.gLatLng(), 100) && location.getSpeed() * 3.6f >= MIN_CAR_SPEED){
                             if(!isShow) {
                                 isShow = true;
                                 showParkingOffNotification(user.current_car);
                             }
                         }
                     }else {
-                        if(ist) {
-                            isStart = true;
-                            startTime = -1;
-                            showStartNotification();
-                        }
+                        isStart = true;
+                        startTime = -1;
+                        showStartNotification();
                     }
                 }
             }
@@ -154,7 +160,7 @@ public class ParkingService extends Service{
         String channelId = "location_notification_channel";
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction(Intent.ACTION_MAIN); intent.addCategory(Intent.CATEGORY_LAUNCHER); intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setAction(Intent.ACTION_MAIN); intent.addCategory(Intent.CATEGORY_LAUNCHER); intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId);
         builder.setSmallIcon(R.drawable.map_48px);

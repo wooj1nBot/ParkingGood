@@ -360,6 +360,7 @@ public class MapActivity extends AppCompatActivity implements
                 }
                 if(parking != null){
                     setParkingDialog(parking.latLng.gLatLng(), parking.address);
+                    parking = null;
                 }
             }
         });
@@ -391,6 +392,10 @@ public class MapActivity extends AppCompatActivity implements
     }
 
     public void removeCar(Parking parking){
+        if(parking == null) return;
+        if(parking.place != null){
+            db.collection("place").document(parking.place.id).update("parkings", FieldValue.arrayRemove(parking));
+        }
         db.collection("map").document("map").update("parkings", FieldValue.arrayRemove(parking)).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -400,6 +405,7 @@ public class MapActivity extends AppCompatActivity implements
     }
 
     public void removeMyCar(Parking parking){
+        if(parking == null) return;
         db.collection("users").document(currentUser.getUid()).update("current_car", null).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
