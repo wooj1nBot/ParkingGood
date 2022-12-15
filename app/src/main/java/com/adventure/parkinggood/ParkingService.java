@@ -87,11 +87,10 @@ public class ParkingService extends Service{
 
                 if(location.getSpeed() * 3.6f >= MIN_CAR_SPEED){
                     LatLng latLng = new LatLng(latitude, longitude);
-                    checkParking(latLng, location);
+                    checkParking(latLng);
                 }else if(location.getSpeed() * 3.6f <= PARKING_SPEED){
                     isShow = false;
                     LatLng latLng = new LatLng(latitude, longitude);
-                    checkParking(latLng, location);
 
                     if(isStart){
                         if(startTime == -1){
@@ -108,8 +107,6 @@ public class ParkingService extends Service{
                         }
                     }
                 }else {
-                    LatLng latLng = new LatLng(latitude, longitude);
-                    checkParking(latLng, location);
                     startTime = -1;
                 }
 
@@ -117,7 +114,7 @@ public class ParkingService extends Service{
         }
     };
 
-    private void checkParking(LatLng latLng, Location location){
+    private void checkParking(LatLng latLng){
 
         db.collection("users").document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -125,7 +122,7 @@ public class ParkingService extends Service{
                 if(documentSnapshot.exists()){
                     user = documentSnapshot.toObject(User.class);
                     if (user != null && user.current_car != null) {
-                        if(isNearBy(latLng, user.getCurrent_car().latLng.gLatLng(), 100) && location.getSpeed() * 3.6f >= MIN_CAR_SPEED){
+                        if(isNearBy(latLng, user.getCurrent_car().latLng.gLatLng(), 100)){
                             if(!isShow) {
                                 isShow = true;
                                 showParkingOffNotification(user.current_car);
